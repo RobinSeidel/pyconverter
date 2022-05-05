@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "pyconverter"
+version = "0.1.0"
+description = "A simple python GUI YouTube converter"
+authors = ["Robin Seidel <robin.seidel@tum.de>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pytube = "^12.0.0"
+tk = "^0.1.0"
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+flake8 = "^4.0.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
