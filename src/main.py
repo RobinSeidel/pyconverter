@@ -11,6 +11,7 @@ class App(ttk.Frame):
         self.rowconfigure(2, weight=1)
         self.rowconfigure(3, weight=2)
         self.rowconfigure(4, weight=2)
+        self.rowconfigure(5, weight=3)
 
         for rowcol in range(3):
             self.columnconfigure(rowcol, weight=1)
@@ -34,15 +35,17 @@ class App(ttk.Frame):
             row=1, column=0, columnspan=3, sticky="nwes", padx=30
         )
 
-        self.link_entry_frame.columnconfigure(0, weight=1)
+        self.link_entry_frame.columnconfigure(0, weight=2)
         self.link_entry_frame.columnconfigure(1, weight=4)
+
         self.link_entry_label = ttk.Label(self.link_entry_frame, text="YouTube Link")
         self.link_entry_label.grid(row=0, column=0, sticky="nwes")
+
         self.link_entry = ttk.Entry(self.link_entry_frame)
-        self.link_entry.grid(row=0, column=1, sticky="nwes", padx=(0,75))
+        self.link_entry.grid(row=0, column=1, sticky="nwes")
 
         self.settings_frame = ttk.LabelFrame(self, text="Quality")
-        self.settings_frame.grid(row=3, column=0, columnspan=3, sticky="nsew", padx=30)
+        self.settings_frame.grid(row=2, column=0, columnspan=3, sticky="nsew", padx=30)
         self.settings_frame.grid_columnconfigure(0, weight=1)
         self.settings_frame.grid_rowconfigure(0, weight=1)
 
@@ -62,25 +65,31 @@ class App(ttk.Frame):
 
         self.output_entry_frame = ttk.Frame(self)
         self.output_entry_frame.grid(
-            row=2, column=0, columnspan=3, sticky="nwes", padx=30
+            row=4, column=0, columnspan=3, sticky="nwes", padx=30
         )
 
-        self.output_entry_frame.columnconfigure(0, weight=1)
-        self.output_entry_frame.columnconfigure(1, weight=4)
+        self.output_entry_frame.columnconfigure(0, weight=2)
+        self.output_entry_frame.columnconfigure(1, weight=2)
+        self.output_entry_frame.columnconfigure(2, weight=1)
+
         self.output_entry_label = ttk.Label(self.output_entry_frame, text="Output Path")
         self.output_entry_label.grid(row=0, column=0, sticky="nwes")
+
         self.output_entry = ttk.Entry(self.output_entry_frame)
-        self.output_entry.grid(row=0, column=1, sticky="nwes")
+        self.output_entry.grid(row=0, column=1,sticky="nwes")
+
         self.output_entry_file_button = ttk.Button(self.output_entry_frame, text="Choose")
-        self.output_entry_file_button.grid(row=0, column=2, padx=(5,0))
+        self.output_entry_file_button.grid(row=0, column=2, sticky="nwes")
 
         self.download_button = ttk.Button(self, text="Download")
-        self.download_button.grid(row=4, column=0, columnspan=3)
+        self.download_button.grid(row=5, column=0, columnspan=3)
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Simple example")
+
+    root.geometry("600x500")
 
     root.tk.call("source", "theme/sun-valley.tcl")
     root.tk.call("set_theme", "dark")
