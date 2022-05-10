@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import filedialog as fd
 
 import os
+import re
 
 def get_download_path():
     """Returns the default downloads path for linux or windows"""
@@ -68,13 +69,45 @@ class App(ttk.Frame):
         link_entry.grid(row=0, column=1, columnspan=2, sticky="nesw")
         return link_entry
 
+    def invalidate_widget(self, widget):
+        widget.state(["invalid"])
+
+    def validate_widget(self, widget):
+        widget.state(["!invalid"])
+
     def setup_heading(self):
         self.heading = App.create_heading(self)
+    
+    def validate_youtube_link(self, link):
+        return re.match("(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?", link) != None
+
+    def link_event_handler(self, event):
+        if self.validate_youtube_link(event.widget.get()):
+            self.validate_widget(event.widget)
+        else:
+            self.invalidate_widget(event.widget)
+
+    def validate_output_path(self, path):
+        return os.path.exists(path)
+
+    def output_path_event_handler(self, event):
+        if self.validate_output_path(event.widget.get()):
+            self.validate_widget(event.widget)
+        else:
+            self.invalidate_widget(event.widget)
+
+
+    def bind_entry_validation(self, entry, func):
+        entry.bind("<FocusOut>", func)
+        entry.bind("<FocusIn>", func)
+        entry.bind("<KeyRelease>", func)
 
     def setup_link_entry(self):
         self.link_entry_frame = self.create_link_entry_frame()
         self.link_entry_label = self.create_link_entry_label(self.link_entry_frame)
         self.link_entry = self.create_link_entry(self.link_entry_frame)
+        self.bind_entry_validation(self.link_entry, self.link_event_handler)
+
 
     def create_settings_frame(self):
         settings_frame = ttk.LabelFrame(self, text="Quality")
@@ -149,14 +182,25 @@ class App(ttk.Frame):
         self.output_entry_label = self.create_output_entry_label(self.output_entry_frame)
         self.output_entry = self.create_output_entry(self.output_entry_frame)
         self.output_entry_file_button = self.create_output_entry_file_button(self.output_entry_frame)
+        self.bind_entry_validation(self.output_entry, self.output_path_event_handler) 
 
-    def create_download_button(self):
-        download_button = ttk.Button(self, text="Download")
+    def create_download_button(self, command):
+        download_button = ttk.Button(self, text="Download", command=command)
         download_button.grid(row=5, column=0, columnspan=3)
         return download_button
+    
+    def download_button_callback(self):
+        youtube_link = self.link_entry.get()
+        output_path = self.output_entry.get()
+        if not self.validate_youtube_link(youtube_link):
+            return
+        if not self.validate_output_path(output_path):
+            return
+        print(f"All is valid... Downloading {youtube_link} to {output_path}")
+
 
     def setup_download_button(self):
-        self.download_button = self.create_download_button()
+        self.download_button = self.create_download_button(self.download_button_callback)
 
     def setup_widgets(self):
         self.setup_heading()
@@ -164,7 +208,6 @@ class App(ttk.Frame):
         self.setup_settings()
         self.setup_output_entry()
         self.setup_download_button()
-
 
 
 if __name__ == "__main__":
