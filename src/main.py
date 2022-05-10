@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog as fd
 
+from pytube import YouTube
+
 import os
 import re
 
@@ -197,6 +199,7 @@ class App(ttk.Frame):
         if not self.validate_output_path(output_path):
             return
         print(f"All is valid... Downloading {youtube_link} to {output_path}")
+        yt = YouTube(youtube_link).streams.first().download(output_path=output_path)
 
 
     def setup_download_button(self):
