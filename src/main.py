@@ -1,6 +1,27 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog as fd
 
+import os
+
+def get_download_path():
+    """Returns the default downloads path for linux or windows"""
+    if os.name == 'nt':
+        import winreg
+        sub_key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
+        downloads_guid = '{374DE290-123F-4565-9164-39C4925E467B}'
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, sub_key) as key:
+            location = winreg.QueryValueEx(key, downloads_guid)[0]
+        return location
+    else:
+        downloads_path = os.path.join(os.path.expanduser('~'), 'downloads')
+        if not os.path.exists(downloads_path):
+            downloads_path = os.path.join(os.path.expanduser('~'), 'Downloads')
+        if not os.path.exists(downloads_path):
+            downloads_path = os.path.expanduser('~')
+        return downloads_path
+
+            
 
 class App(ttk.Frame):
     def __init__(self, parent):
@@ -20,69 +41,130 @@ class App(ttk.Frame):
 
         self.setup_widgets()
 
-    def setup_widgets(self):
-
-        self.heading = ttk.Label(
+    def create_heading(self):
+        heading = ttk.Label(
             self,
             text="YouTube Downloader",
             justify="center",
             font=("-size", 15, "-weight", "bold"),
         )
-        self.heading.grid(row=0, column=0, columnspan=3)
+        heading.grid(row=0, column=0, columnspan=3)
+        return heading
 
-        self.link_entry_frame = ttk.Frame(self)
-        self.link_entry_frame.grid(
-            row=1, column=0, columnspan=3, sticky="nwes", padx=30
-        )
+    def create_link_entry_frame(self):
+        link_entry_frame = ttk.Frame(self)
+        link_entry_frame.grid(row=1, column=0, columnspan=3, sticky="nesw", padx=30)
+        link_entry_frame.columnconfigure(0, weight=1)
+        link_entry_frame.columnconfigure(1, weight=10)
+        return link_entry_frame
 
-        self.link_entry_frame.columnconfigure(0, weight=2)
-        self.link_entry_frame.columnconfigure(1, weight=4)
+    def create_link_entry_label(self, parent):
+        link_entry_label = ttk.Label(parent, text="YouTube Link")
+        link_entry_label.grid(row=0, column=0, sticky="nesw")
+        return link_entry_label
 
-        self.link_entry_label = ttk.Label(self.link_entry_frame, text="YouTube Link")
-        self.link_entry_label.grid(row=0, column=0, sticky="nwes")
+    def create_link_entry(self, parent):
+        link_entry = ttk.Entry(parent)
+        link_entry.grid(row=0, column=1, columnspan=2, sticky="nesw")
+        return link_entry
 
-        self.link_entry = ttk.Entry(self.link_entry_frame)
-        self.link_entry.grid(row=0, column=1, sticky="nwes")
+    def setup_heading(self):
+        self.heading = App.create_heading(self)
 
-        self.settings_frame = ttk.LabelFrame(self, text="Quality")
-        self.settings_frame.grid(row=2, column=0, columnspan=3, sticky="nsew", padx=30)
-        self.settings_frame.grid_columnconfigure(0, weight=1)
-        self.settings_frame.grid_rowconfigure(0, weight=1)
+    def setup_link_entry(self):
+        self.link_entry_frame = self.create_link_entry_frame()
+        self.link_entry_label = self.create_link_entry_label(self.link_entry_frame)
+        self.link_entry = self.create_link_entry(self.link_entry_frame)
 
-        self.settings_frame_2 = ttk.Frame(self.settings_frame)
-        self.settings_frame_2.grid(row=0, column=0)
+    def create_settings_frame(self):
+        settings_frame = ttk.LabelFrame(self, text="Quality")
+        settings_frame.grid(row=2, column=0, columnspan=3, sticky="nesw", padx=30)
+        settings_frame.grid_columnconfigure(0, weight=1)
+        settings_frame.grid_rowconfigure(0, weight=1)
+        return settings_frame
 
+    def create_inner_settings_frame(self, parent):
+        inner_settings_frame = ttk.Frame(parent)
+        inner_settings_frame.grid(row=0, column=0)
+        return inner_settings_frame
+    
+    def create_settings_radiobuttons(self, parent):
         values = {
             "Low (360p)": "0",
             "Medium (720p)": "1",
             "High (1080p)": "2",
         }
 
-        for index, (txt, val) in enumerate(values.items()):
-            ttk.Radiobutton(
-                self.settings_frame_2, text=txt, value=val, variable=self.quality
-            ).pack(expand=True, anchor=tk.W, pady=13)
+        radiobutton_list = []
 
-        self.output_entry_frame = ttk.Frame(self)
-        self.output_entry_frame.grid(
-            row=4, column=0, columnspan=3, sticky="nwes", padx=30
+        for index, (txt, val) in enumerate(values.items()):
+            radiobutton = ttk.Radiobutton(
+                parent, text=txt, value=val, variable=self.quality
+            )
+            radiobutton.pack(expand=True, anchor=tk.W, pady=13)
+            radiobutton_list.append(radiobutton)
+        return radiobutton_list
+
+    def setup_settings(self):
+        self.settings_frame = self.create_settings_frame()
+        self.inner_settings_frame = self.create_inner_settings_frame(self.settings_frame)
+        self.settings_radiobutton_list = self.create_settings_radiobuttons(
+            self.inner_settings_frame
         )
 
-        self.output_entry_frame.columnconfigure(0, weight=2)
-        self.output_entry_frame.columnconfigure(1, weight=2)
-        self.output_entry_frame.columnconfigure(2, weight=1)
+    def choose_output_path(self):
+        self.output_entry.delete(0,tk.END)
+        path = fd.askdirectory()
+        self.output_entry.insert(0, path)
 
-        self.output_entry_label = ttk.Label(self.output_entry_frame, text="Output Path")
-        self.output_entry_label.grid(row=0, column=0, sticky="nwes")
+    def create_output_entry_frame(self):
+        output_entry_frame = ttk.Frame(self)
+        output_entry_frame.grid(
+            row=4, column=0, columnspan=3, sticky="nesw", padx=30
+        )
+        output_entry_frame.columnconfigure(0, weight=1)
+        output_entry_frame.columnconfigure(1, weight=10)
+        return output_entry_frame
+    
+    def create_output_entry_label(self, parent):
+        output_entry_label = ttk.Label(parent, text="Output Path")
+        output_entry_label.grid(row=1, column=0, sticky="nesw")
+        return output_entry_label
 
-        self.output_entry = ttk.Entry(self.output_entry_frame)
-        self.output_entry.grid(row=0, column=1,sticky="nwes")
+    def create_output_entry(self, parent):
+        output_entry = ttk.Entry(parent)
+        output_entry.insert(0, get_download_path())
+        output_entry.grid(row=1, column=1, sticky="nesw", padx=(0, 3))
+        return output_entry
 
-        self.output_entry_file_button = ttk.Button(self.output_entry_frame, text="Choose")
-        self.output_entry_file_button.grid(row=0, column=2, sticky="nwes")
+    def create_output_entry_file_button(self, parent):
+        output_entry_file_button = ttk.Button(
+            self.output_entry_frame, text="Choose", command=self.choose_output_path
+        )
+        output_entry_file_button.grid(row=1, column=2)
+        return output_entry_file_button
 
-        self.download_button = ttk.Button(self, text="Download")
-        self.download_button.grid(row=5, column=0, columnspan=3)
+    def setup_output_entry(self):
+        self.output_entry_frame = self.create_output_entry_frame()
+        self.output_entry_label = self.create_output_entry_label(self.output_entry_frame)
+        self.output_entry = self.create_output_entry(self.output_entry_frame)
+        self.output_entry_file_button = self.create_output_entry_file_button(self.output_entry_frame)
+
+    def create_download_button(self):
+        download_button = ttk.Button(self, text="Download")
+        download_button.grid(row=5, column=0, columnspan=3)
+        return download_button
+
+    def setup_download_button(self):
+        self.download_button = self.create_download_button()
+
+    def setup_widgets(self):
+        self.setup_heading()
+        self.setup_link_entry()
+        self.setup_settings()
+        self.setup_output_entry()
+        self.setup_download_button()
+
 
 
 if __name__ == "__main__":
