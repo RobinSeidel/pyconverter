@@ -147,7 +147,7 @@ class App(ttk.Frame):
 
     def choose_output_path(self):
         self.output_entry.delete(0,tk.END)
-        path = fd.askdirectory()
+        path = fd.askdirectory(initialdir=get_download_path())
         self.output_entry.insert(0, path)
 
     def create_output_entry_frame(self):
