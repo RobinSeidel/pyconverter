@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog as fd
+from tkinter import messagebox
+
+import threading
 
 from pytube import YouTube
 
@@ -35,7 +38,8 @@ class App(ttk.Frame):
         self.rowconfigure(2, weight=1)
         self.rowconfigure(3, weight=2)
         self.rowconfigure(4, weight=2)
-        self.rowconfigure(5, weight=3)
+        self.rowconfigure(5, weight=2)
+        self.rowconfigure(6, weight=2)
 
         for rowcol in range(3):
             self.columnconfigure(rowcol, weight=1)
@@ -97,7 +101,6 @@ class App(ttk.Frame):
             self.validate_widget(event.widget)
         else:
             self.invalidate_widget(event.widget)
-
 
     def bind_entry_validation(self, entry, func):
         entry.bind("<FocusOut>", func)
@@ -186,20 +189,45 @@ class App(ttk.Frame):
         self.output_entry_file_button = self.create_output_entry_file_button(self.output_entry_frame)
         self.bind_entry_validation(self.output_entry, self.output_path_event_handler) 
 
+    def create_progress_bar(self):
+        progress_bar = ttk.Progressbar(self, orient="horizontal", length=150,
+                              mode="indeterminate")
+        progress_bar.grid(row=5, column=0, columnspan=3, sticky="nwse", padx=20)
+        return progress_bar
+    
+    def setup_progress_bar(self):
+        self.progress_bar = self.create_progress_bar()
+
+    def start_progress_bar(self):
+        self.progress_bar.start()
+
+    def stop_progress_bar(self):
+        self.progress_bar.stop()
+
+    def download_video(self, youtube_link, output_path):
+        self.download_button.grid_remove()
+        self.start_progress_bar()
+        YouTube(youtube_link).streams.first().download(output_path=output_path)
+        self.stop_progress_bar()
+        self.download_button.grid()
+
+
     def create_download_button(self, command):
         download_button = ttk.Button(self, text="Download", command=command)
-        download_button.grid(row=5, column=0, columnspan=3)
+        download_button.grid(row=6, column=0, columnspan=3)
         return download_button
-    
+
     def download_button_callback(self):
         youtube_link = self.link_entry.get()
         output_path = self.output_entry.get()
         if not self.validate_youtube_link(youtube_link):
+            messagebox.showerror("Error", "Please provide a valid YouTube link")
             return
         if not self.validate_output_path(output_path):
+            messagebox.showerror("Error", "Please provide a valid output path")
             return
+        threading.Thread(target=self.download_video, args=(youtube_link, output_path)).start()
         print(f"All is valid... Downloading {youtube_link} to {output_path}")
-        yt = YouTube(youtube_link).streams.first().download(output_path=output_path)
 
 
     def setup_download_button(self):
@@ -210,7 +238,9 @@ class App(ttk.Frame):
         self.setup_link_entry()
         self.setup_settings()
         self.setup_output_entry()
+        self.setup_progress_bar()
         self.setup_download_button()
+    
 
 
 if __name__ == "__main__":
