@@ -33,5 +33,5 @@ A simple cross-platform gui interface to the [pytube](https://pytube.io) library
 ### Fully responsive
 
 <p align="center">
-  <img src="docs/responsive.png" width="45%" />
+  <img src="docs/responsive.png" width="70%" />
 </div>
