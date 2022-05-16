@@ -306,6 +306,7 @@ def main():
     root.geometry("600x500")
     root.tk.call("source", os.path.join(BASE_PATH, "theme", "sun-valley.tcl"))
     root.tk.call("set_theme", "dark")
+    root.iconbitmap(os.path.join(BASE_PATH, "logo", "logo.ico")) 
     app = App(root)
     app.pack(fill="both", expand=True)
     root.update()

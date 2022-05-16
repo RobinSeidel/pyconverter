@@ -9,7 +9,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[(os.path.join("pyconverter", "logo", "logo.ico"), "logo")],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -43,4 +43,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=os.path.join("pyconverter", "logo", "logo.ico"),
 )
