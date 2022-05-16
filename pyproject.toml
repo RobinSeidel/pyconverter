@@ -6,7 +6,7 @@ authors = ["Robin Seidel <robin.seidel@tum.de>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.11"
 pytube = "^12.0.0"
 tk = "^0.1.0"
 ffmpeg-python = "^0.2.0"
@@ -15,6 +15,7 @@ ffmpeg-python = "^0.2.0"
 black = "^22.3.0"
 flake8 = "^4.0.1"
 isort = "^5.10.1"
+pyinstaller = "^5.0.1"
 
 [tool.isort]
 profile = "black"
