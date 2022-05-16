@@ -22,7 +22,7 @@ def get_download_path_win():
     except (FileNotFoundError, WindowsError):
         logging.warning("Could not determine windows downloads path")
         download_path = ""
-    logging.info(f"Detected downloads path is {location}")
+    logging.info(f"Detected downloads path is {download_path}")
     return download_path
 
 
