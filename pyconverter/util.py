@@ -1,7 +1,14 @@
 # Some static utility methods
 import os
+import sys
 import logging
 import ffmpeg
+
+
+def get_base_path():
+    if getattr(sys, 'frozen', False):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
 
 
 def get_download_path_win():

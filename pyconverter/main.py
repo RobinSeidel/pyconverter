@@ -10,9 +10,11 @@ from tkinter import messagebox, ttk
 
 from pytube import YouTube
 
-from exceptions import StreamDoesNotExistError
-from util import get_download_path, combine_video_and_audio
+from .exceptions import StreamDoesNotExistError
+from .util import get_base_path, get_download_path, combine_video_and_audio
 
+
+BASE_PATH = get_base_path()
 
 class YouTubeVideo:
 
@@ -298,12 +300,11 @@ class App(ttk.Frame):
         self.setup_progress_bar()
         self.setup_download_button()
 
-
-if __name__ == "__main__":
+def main():
     root = tk.Tk()
     root.title("YouTube Downloader")
     root.geometry("600x500")
-    root.tk.call("source", "theme/sun-valley.tcl")
+    root.tk.call("source", os.path.join(BASE_PATH, "theme", "sun-valley.tcl"))
     root.tk.call("set_theme", "dark")
     app = App(root)
     app.pack(fill="both", expand=True)
